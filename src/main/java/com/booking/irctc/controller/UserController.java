@@ -9,6 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
+@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -24,10 +27,12 @@ public class UserController {
 
     }
     @PostMapping("/login")
-    public ResponseEntity<Boolean> loginUser(@RequestBody UserData userData) {
-        if (userService.logIn(userData))
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        else return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<Map<String, String>> login(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            return ResponseEntity.ok(Map.of("message", "Login successful", "user", authentication.getName()));
+        } else {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+        }
     }
 
     @GetMapping("/auth/me")
